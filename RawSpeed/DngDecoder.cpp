@@ -411,9 +411,10 @@ RawImage DngDecoder::decodeRawInternal() {
       else
         table[i] = intable[len-1];
     }
-    for (int y = 0; y < mRaw->dim.y; y++) {
-      uint32 cw = mRaw->dim.x * mRaw->getCpp();
-      ushort16* pixels = (ushort16*)mRaw->getData(0, y);
+    iPoint2D udim = mRaw->getUncroppedDim();
+    for (int y = 0; y < udim.y; y++) {
+      uint32 cw = udim.x * mRaw->getCpp();
+      ushort16* pixels = (ushort16*)mRaw->getDataUncropped(0, y);
       for (uint32 x = 0; x < cw; x++) {
         pixels[x]  = table[pixels[x]];
       }
