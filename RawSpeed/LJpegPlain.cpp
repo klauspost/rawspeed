@@ -252,6 +252,14 @@ void LJpegPlain::decodeScanLeftGeneric() {
   x = maxSuperH;
   pixInSlice -= maxSuperH;
 
+  // Fix for Canon 80D mraw format.
+  // In that format, `frame` is 4032x3402, while `mRaw` is 4536x3024.
+  // Consequently, the slices in `frame` wrap around (this is taken care of by
+  // `offset`) and must be decoded fully (without skipY) to fill the image
+  uint32 oldSkipY = skipY;
+  if (mWrappedCr2Slices)
+    skipY = 0;
+
   uint32 cw = (frame.w - skipX);
   for (uint32 y = 0;y < (frame.h - skipY);y += maxSuperV) {
     for (; x < cw ; x += maxSuperH) {
@@ -302,6 +310,8 @@ void LJpegPlain::decodeScanLeftGeneric() {
     predict = dest;
     x = 0;
   }
+  if (mWrappedCr2Slices)
+    skipY = oldSkipY;
   delete[] imagePos;
   delete[] sliceWidth;
 }
@@ -400,6 +410,14 @@ void LJpegPlain::decodeScanLeft4_2_0() {
   x = 2;
   pixInSlice -= 2;
 
+  // Fix for Canon 80D mraw format.
+  // In that format, `frame` is 4032x3402, while `mRaw` is 4536x3024.
+  // Consequently, the slices in `frame` wrap around (this is taken care of by
+  // `offset`) and must be decoded fully (without skipY) to fill the image
+  uint32 oldSkipY = skipY;
+  if (mWrappedCr2Slices)
+    skipY = 0;
+
   uint32 cw = (frame.w - skipX);
   for (uint32 y = 0;y < (frame.h - skipY);y += 2) {
     for (; x < cw ; x += 2) {
@@ -445,6 +463,8 @@ void LJpegPlain::decodeScanLeft4_2_0() {
 
     x = 0;
   }
+  if (mWrappedCr2Slices)
+    skipY = oldSkipY;
 }
 
 void LJpegPlain::decodeScanLeft4_2_2() {
@@ -528,6 +548,14 @@ void LJpegPlain::decodeScanLeft4_2_2() {
   x = 2;
   pixInSlice -= 2;
 
+  // Fix for Canon 80D mraw format.
+  // In that format, `frame` is 4032x3402, while `mRaw` is 4536x3024.
+  // Consequently, the slices in `frame` wrap around (this is taken care of by
+  // `offset`) and must be decoded fully (without skipY) to fill the image
+  uint32 oldSkipY = skipY;
+  if (mWrappedCr2Slices)
+    skipY = 0;
+
   uint32 cw = (frame.w - skipX);
   for (uint32 y = 0;y < (frame.h - skipY);y++) {
     for (; x < cw ; x += 2) {
@@ -567,6 +595,8 @@ void LJpegPlain::decodeScanLeft4_2_2() {
     // Check if we are still within the file.
     bits->checkPos();
   }
+  if (mWrappedCr2Slices)
+    skipY = oldSkipY;
 }
 
 #undef COMPS
