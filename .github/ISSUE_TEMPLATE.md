@@ -1,0 +1,1 @@
+# WARNING: rawspeed is now maintained under [darktable-org/rawspeed](https://github.com/darktable-org/rawspeed) repo! Do **NOT** open new issues in this old repo! Do **NOT** send new pull requests to this old repo!
