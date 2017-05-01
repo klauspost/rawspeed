@@ -1,6 +1,6 @@
-#RawSpeed Developer Information
+# RawSpeed Developer Information
 
-##What is RawSpeed?
+## What is RawSpeed?
 
 RawSpeed…
 
@@ -28,7 +28,7 @@ RawSpeed does NOT…
 
 So RawSpeed is not intended to be a complete RAW file display library,  but only act as the first stage decoding, delivering the RAW data to your application.
 
-##Version 2, new cameras and features
+## Version 2, new cameras and features
 - Support for Sigma foveon cameras.
 - Support for Fuji cameras.
 - Support old Minolta, Panasonic, Sony cameras (contributed by Pedro Côrte-Real)
@@ -36,23 +36,21 @@ So RawSpeed is not intended to be a complete RAW file display library,  but only
 - Use [pugixml](http://pugixml.org/) for xml parsing to avoid depending on libxml.
 
 
-##Getting Source Code
+## Getting Source Code
 
 You can get access to the lastest version using [from here](https://github.com/klauspost/rawspeed). You will need to include the “RawSpeed” and “data” folder in your own project.
 
 This includes a Microsoft Visual Studio project to build a test application. The test application uses [libgfl](http://www.xnview.com/en/gfl.html) to output 16 bit images. This library is not required for your own implementation though.
 
-To see a GCC-based implementation, you can check out [this directory](http://rawstudio.org/svn/rawstudio/trunk/plugins/load-rawspeed/), which is the implementation Rawstudio uses to load the images. This also includes an automake file to set up. You can also have a look at the [darktable implementation](https://github.com/darktable-org/darktable/blob/master/src/common/imageio_rawspeed.cc), for which there is a [Cmake based build file](https://github.com/darktable-org/darktable/tree/master/src/external/rawspeed).
+To see a GCC-based implementation, you can check out [this directory](http://rawstudio.org/svn/rawstudio/trunk/plugins/load-rawspeed/), which is the implementation Rawstudio uses to load the images. This also includes an automake file to set up. You can also have a look at the [darktable implementation](https://github.com/darktable-org/darktable/blob/master/src/common/imageio_rawspeed.cc), for which there is a [Cmake based build file](https://github.com/darktable-org/darktable/tree/master/src/external/rawspeed).h
 
-
-##Background of RawSpeed
+## Background of RawSpeed
 
 So my main objectives were to make a very fast loader that worked for 75% of the cameras out there, and was able to decode a RAW file at close to the optimal speed. The last 25% of the cameras out there could be serviced by a more generic loader, or convert their images to DNG – which as a sidenote usually compresses better than your camera.
 
 RawSpeed is not at the moment a separate library, so you have to include it in your project directly.
 
-
-##Include files
+## Include files
 
 All needed headers are available by including “RawSpeed-API.h”. You must have the pthread library and headers installed and available.
 
@@ -62,7 +60,7 @@ You must implement a single function: “int rawspeed_get_number_of_processor_co
 
 Everything is encapsulated on a “RawSpeed” namespace. To avoid clutter the examples below assume you have a “using namespace RawSpeed;” before using the code.
 
-##The Camera Definition file
+## The Camera Definition file
 
 This file describes basic information about different cameras, so new cameras can be supported without code changes. See the separate documentation on the [Camera Definition File](cameras-xml.md).
 
@@ -92,7 +90,7 @@ You can disable specific cameras in the xml file, or if you would want to do it 
     metadata.disableCamera("Fuji")
 ```
 
-##Using RawSpeed
+## Using RawSpeed
 
 You need to have the file data in a FileMap object. This can either be created by supplying the file content in memory using FileMap(buffer_pointer, size_of_buffer), or use a “FileReader” object to read the content of a file, like this:
 
@@ -192,7 +190,7 @@ delete decoder;
 
 Actually the map and decoder can be deallocated once the metadata has been decoded. The RawImage will automatically be deallocated when it goes out of scope and the decoder has been deallocated. After that all data pointers that have been retrieved will no longer be usable.
 
-##Tips & Tricks
+## Tips & Tricks
 
 You will most likely find that a relatively long time is spent actually reading the file. The biggest trick to speeding up raw reading is to have some sort of prefetching going on while the file is being decoded. This is the main reason why RawSpeed decodes from memory, and doesn’t use direct file reads while decoding.
 
@@ -238,7 +236,7 @@ This enables you to quickly search through the array. If you for instance cast t
 
 Note that all positions are uncropped image positions. Also note that if you keep the interpolation enabled you can still retrieve the mBadPixelMap, but the mBadPixelPositions will be cleared.
 
-##Updating Camera Support
+## Updating Camera Support
 
 If you implement an autoupdate feature, you simply update “cameras.xml” and delete and re-create the CameraMetaData object.
 
@@ -247,18 +245,18 @@ There might of course be some specific cameras that require code-changes to work
 That means you should safely be able to update cameras.xml to a newer version, and cameras requiring a code update will then simply refuse to open.
 
 
-##Format Specific Notes
+## Format Specific Notes
 
-###Canon sRaw/mRaw
+### Canon sRaw/mRaw
 Canon reduced resolution Raws (mRaw/sRaw) are returned as RGB with 3 component per pixel without whitebalance compensation, so color balance should match ordinary CR2 images. The subsampled color components are linearly interpolated.
 
 This is even more complicated by the fact that Canon has changed the way they store the sraw whitebalance values. This means that on newer cameras, you might have to specify "invert_sraw_wb" as a hint to properly decode the whitebalance on these casmeras. To see examples of this, search cameras.xml for "invert_sraw_wb".
 
-###Sigma Foveon Support
+### Sigma Foveon Support
 
 Sigma Foveon (x3f-based) images are delivered as raw image values. dcraw offers a "cleanup" function, that will reduce noise in Foveon images. RawSpeed does not have an equivalent function, so if you want to use RawSpeed as a drop-in replacement, you will either have to convert the dcraw "foveon_interpolate", or implement similar noise reduction, if you want it.
 
-###Fuji Rotated Support
+### Fuji Rotated Support
 
 By default RawSpeed delivers Fuji SuperCCD images as 45 degree rotated images.
 
@@ -272,19 +270,17 @@ RawDecoder->fujiRotate = FALSE;
 ```
 Do however note the CFA colors are still referring to the rotated color positions.
 
+## Other options
 
-##Other options
-
-###RawDecoder -> uncorrectedRawValues
+### RawDecoder -> uncorrectedRawValues
 If you enable this on the decoder before calling RawDecoder->decodeRaw(), you will get complely unscaled values. Some cameras have a "compressed" mode, where a non-linear compression curve is applied to the image data. If you enable this parameter the compression curve will not be applied to the image. Currently there is no way to retrieve the compression curve, so this option is only useful for diagnostics.
 
-
-###RawImage.mDitherScale
+### RawImage.mDitherScale
 This option will determine whether dither is applied when values are scaled to 16 bits. Dither is applied as a random value between "+-scalefactor/2". This will make it so that images with less number of bits/pixel doesn't have a big tendency for posterization, since values close to eachother will be spaced out a bit.
 
 Another way of putting it, is that if your camera saves 12 bit per pixel, when RawSpeed upscales this to 16 bits, the 4 "new" bits will be random instead of always the same value.
 
-##Memory Usage
+## Memory Usage
 
 RawSpeed will need:
 
@@ -294,6 +290,6 @@ RawSpeed will need:
 * Image width * image height * 6 for ordinary Raw images with float point output.
 * Image width * image height / 8 for images with bad pixels.
 
-##Submitting Requests and Patches
+## Submitting Requests and Patches
 
 Please go to the [github page](https://github.com/klauspost/rawspeed) and submit your (pull)requests and issues there.
