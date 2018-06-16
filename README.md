@@ -28,7 +28,7 @@ RawSpeed **does not**…
 
 
 ## Background
-My main objectives were to make a very fast loader that worked for 75% of the cameras out there, and was able to decode a RAW file at close to the optimal speed. The last 25% of the cameras out there could be serviced by a more generic loader, or convert their images to DNG – which as a sidenote usually compresses better than your camera.
+My main objectives were to make a very fast loader that worked for 75% of the cameras out there, and was able to decode a RAW file at close to the optimal speed. The last 25% of the cameras out there could be serviced by a more generic loader, or convert their images to DNG — which as a sidenote usually compresses better than your camera.
 
 RawSpeed is not at the moment a separate library, so you have to include it in your project directly.
 
@@ -63,7 +63,7 @@ Everything is encapsulated on a `RawSpeed` namespace. To avoid clutter the examp
 ### The Camera Definition file
 This file describes basic information about different cameras, so new cameras can be supported without code changes. See the separate documentation on the [Camera Definition File](cameras-xml.md).
 
-The camera definitions are read into the CameraMetaData object, which you can retain for re-use later. You initialize this data by doing
+The camera definitions are read into the CameraMetaData object, which you can retain for reuse later. You initialize this data by doing
 
 ```cpp
 static CameraMetaData *metadata = NULL;
@@ -77,7 +77,7 @@ if (NULL == metadata)
 }
 ```
 
-The memory impact of this object is quite small, so you don’t have to free it every time. However, you may delete and re-create it if you know that the metadata file has been updated.
+The memory impact of this object is quite small, so you don’t have to free it every time. However, you may delete and recreate it if you know that the metadata file has been updated.
 
 You can disable specific cameras in the XML file, or if you would want to do it in code, you can use:
 
@@ -130,15 +130,15 @@ RawImage raw = decoder->mRaw;
 
 This will decode the image, and apply metadata information. `raw` is at this point completely untouched RAW data, however the image has been cropped to the active image area in decodeMetaData. Error reporting is: If a fatal error occurs a `RawDecoderException` is thrown.
 
-Non-fatal errors are pushed into a "vector" array in the decoder object called "errors". With these types of errors, there *will* be a RAW image available, but it will likely contain junk sections in undecodable parts. The data that could be decoded successfully will be available, so treat these messages as warnings.
+Non-fatal errors are pushed into a "vector" array in the decoder object called `errors`. With these types of errors, there *will* be a RAW image available, but it will likely contain junk sections in undecodable parts. The data that could be decoded successfully will be available, so treat these messages as warnings.
 
-Another thing to note here is that the `RawImage` object is automatically refcounted, so you can pass the object around  without worrying about the image being freed before all instances are out of scope. Do however keep this in mind if you pass the pointer to image data to another part of your application.
+Another thing to note here is that the `RawImage` object is automatically refcounted, so you can pass the object around without worrying about the image being freed before all instances are out of scope. **Keep this in mind if you pass the pointer to image data to another part of your application**.
 
 ```cpp
 raw->scaleBlackWhite();
 ```
 
-This will apply the black/white scaling to the image, so the data is normalized into the 0->65535 range no matter what the sensor adjustment is (for 16 bit images). This function does no throw any errors. Now you can retrieve information about the image:
+This will apply the black/white scaling to the image, so the data is normalized into the 0–65535 range no matter what the sensor adjustment is (for 16 bit images). This function does no throw any errors. Now you can retrieve information about the image:
 
 ```cpp
 int components_per_pixel = raw->getCpp();
@@ -146,9 +146,9 @@ RawImageType type = raw->getDataType();
 bool is_cfa = r->isCFA;
 ```
 
-Components per pixel indicates how many components are present per pixel. Common values are 1 on CFA images, and 3, found in some DNG images for instance. Do note, you cannot assume that an images is CFA just because it is 1 cpp - greyscale DNG images from things like scanners can be saved like that.
+Components per pixel indicates how many components are present per pixel. Common values are 1 on CFA images, and 3, found in some DNG images for instance. Note that you cannot assume that an images is CFA just because it is 1 cpp — greyscale DNG images from things like scanners can be saved like that.
 
-The `RawImageType` can be `TYPE_USHORT16` (most common) which indicates unsigned 16 bit data or `TYPE_FLOAT32` (found in some DNGs)
+The `RawImageType` can be `TYPE_USHORT16` (most common) which indicates unsigned 16 bit data or `TYPE_FLOAT32` (found in some DNGs).
 
 The `isCFA` indicates whether the image has all components per pixel, or if it was taken with a colorfilter array. This usually corresponds to the number of components per pixel (1 on CFA, 3 on non-CFA).
 
@@ -226,7 +226,7 @@ This enables you to quickly search through the array. If for instance you cast t
 Note that all positions are uncropped image positions. Also note that if you keep the interpolation enabled you can still retrieve the `mBadPixelMap`, but the `mBadPixelPositions` will be cleared.
 
 ### Updating camera support
-If you implement an autoupdate feature, you simply update `cameras.xml` and delete and re-create the `CameraMetaData` object.
+If you implement an autoupdate feature, you simply update `cameras.xml` and delete and recreate the `CameraMetaData` object.
 
 There might of course be some specific cameras that require code changes to work properly. However, there is a versioning check in place, whereby cameras requiring a specific code version to decode properly will be marked as such.
 
@@ -255,7 +255,7 @@ RawDecoder->fujiRotate = FALSE;
 Do however note the CFA colors are still referring to the rotated color positions.
 
 ### Other options
-#### RawDecoder -> uncorrectedRawValues
+#### RawDecoder->uncorrectedRawValues
 If you enable this on the decoder before calling `RawDecoder->decodeRaw()`, you will get completely unscaled values. Some cameras have a "compressed" mode, where a non-linear compression curve is applied to the image data. If you enable this parameter the compression curve will not be applied to the image. Currently there is no way to retrieve the compression curve, so this option is only useful for diagnostics.
 
 #### RawImage.mDitherScale
@@ -266,8 +266,8 @@ Another way of putting it, is that if your camera saves 12 bits per pixel, when 
 ### Memory Usage
 RawSpeed will need the following in memory:
 
-* The size of the Raw File
-* `<image width> * <image height> * 2` for ordinary Raw images with 16 bit output
-* `<image width> * <image height> * 4` for float point images with float point output
-* `<image width> * <image height> * 6` for ordinary Raw images with float point output
-* `<image width> * <image height> / 8` for images with bad pixels
+- the size of the Raw File
+- `<image width> * <image height> * 2` for ordinary Raw images with 16 bit output
+- `<image width> * <image height> * 4` for float point images with float point output
+- `<image width> * <image height> * 6` for ordinary Raw images with float point output
+- `<image width> * <image height> / 8` for images with bad pixels
