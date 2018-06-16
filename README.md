@@ -1,5 +1,7 @@
 # RawSpeed Developer Information
 ## What is RawSpeed?
+RawSpeed is the the first stage in decoding and delivering RAW data to your application. It is not intended to be a complete RAW file display library.
+
 RawSpeed…
 
 - is capable of decoding various images in RAW file format
@@ -9,22 +11,21 @@ RawSpeed…
 - supplies CFA layout for all known cameras
 - provides automatic black level calculation for cameras having such information
 - optionally crops off “junk” areas of images, containing no valid image information
-- can add support for new cameras by adding definitions to an XML file
+- can support new cameras by reading definitions from an XML file
 - is extensively crash-tested on broken files
-- decodes images from memory, not a file stream. You can use a memory mapped file, but it is rarely faster
+- decodes images from memory, not a file stream (you can use a memory mapped file, but it is rarely faster)
 - is currently tested on more than 500 unique cameras
 - can add support for new cameras by updating an XML file
 - is open source under the LGPL v2 license
 
-RawSpeed does NOT…
+RawSpeed **does not**…
 
-- read metadata information, beside whitebalance information.
+- read metadata information, beside whitebalance information
 - do any color correction or whitebalance correction.
-- de-mosaic the image.
-- supply a viewable image or thumbnail.
-- crop the image to the same sizes as manufactures, but supplies biggest possible images.
+- de-mosaic the image
+- supply a viewable image or thumbnail
+- crop the image to the same sizes as manufactures, but supplies biggest possible images
 
-So RawSpeed is not intended to be a complete RAW file display library,  but only act as the first stage decoding, delivering the RAW data to your application.
 
 ## Background
 My main objectives were to make a very fast loader that worked for 75% of the cameras out there, and was able to decode a RAW file at close to the optimal speed. The last 25% of the cameras out there could be serviced by a more generic loader, or convert their images to DNG – which as a sidenote usually compresses better than your camera.
@@ -108,7 +109,7 @@ RawParser parser(map);
 RawDecoder *decoder = parser.getDecoder();
 ```
 
-This will do basic parsing of the file, and return a decoder that is capable of decoding the image. If no decoder can be found or another error occurs a “RawDecoderException” object will be thrown. 
+This will do basic parsing of the file, and return a decoder that is capable of decoding the image. If no decoder can be found or another error occurs a `RawDecoderException` object will be thrown. 
 
 #### 2. Determine whether the specific camera is supported
 ```cpp
@@ -127,9 +128,9 @@ decoder->decodeMetaData(metadata);
 RawImage raw = decoder->mRaw;
 ```
 
-This will decode the image, and apply metadata information. `raw` is at this point completely untouched Raw data, however the image has been cropped to the active image area in decodeMetaData. Error reporting is: If a fatal error occurs a `RawDecoderException` is thrown.
+This will decode the image, and apply metadata information. `raw` is at this point completely untouched RAW data, however the image has been cropped to the active image area in decodeMetaData. Error reporting is: If a fatal error occurs a `RawDecoderException` is thrown.
 
-Non-fatal errors are pushed into a "vector" array in the decoder object called "errors". With these types of errors, there WILL be a raw image available, but it will likely contain junk sections in undecodable parts. The data that could be decoded successfully will be available, so treat these messages as warnings.
+Non-fatal errors are pushed into a "vector" array in the decoder object called "errors". With these types of errors, there *will* be a RAW image available, but it will likely contain junk sections in undecodable parts. The data that could be decoded successfully will be available, so treat these messages as warnings.
 
 Another thing to note here is that the `RawImage` object is automatically refcounted, so you can pass the object around  without worrying about the image being freed before all instances are out of scope. Do however keep this in mind if you pass the pointer to image data to another part of your application.
 
@@ -176,7 +177,7 @@ int height = raw->dim.y;
 int pitch_in_bytes = raw->pitch;
 ```
 
-The `getData(x, y)` function will give you a pointer to the Raw data at pixel x, y. This is the coordinate after crop, so you can start copying data right away. Don’t use this function on every pixel, but instead increment the pointer yourself. The width and height gives you the size of the image in pixels – again after crop.
+The `getData(x, y)` function will give you a pointer to the RAW data at pixel x, y. This is the coordinate after crop, so you can start copying data right away. Don’t use this function on every pixel, but instead increment the pointer yourself. The width and height gives you the size of the image in pixels – again after crop.
 
 Pitch is the number of bytes between lines, since this is usually NOT equal to `(width * components_per_pixel * bytes_per_component)`. So in this instance, to calculate a pointer at line y, use `&data[y * raw->pitch]`.
 
@@ -191,7 +192,7 @@ The map and decoder can be deallocated once the metadata has been decoded. The `
 
 ## Tips and Tricks
 ### Performance
-You will likely find that a relatively long time is spent actually reading the file. **The biggest trick to speeding up raw reading is to have some sort of prefetching going on while the file is being decoded**. This is the main reason why `RawSpeed` decodes from memory, and doesn’t use direct file reads while decoding.
+You will likely find that a relatively long time is spent actually reading the file. **The biggest trick to speeding up RAW file reading is to have some sort of prefetching going on while the file is being decoded**. This is the main reason why `RawSpeed` decodes from memory, and doesn’t use direct file reads while decoding.
 
 The simplest solution is to start a thread that simply reads the file, and rely on the system cache to cache the data. This is fairly simple and works in 99% of all cases. So if you are doing batch processing simply start a process reading the next file, when the current image starts decoding. This will ensure that your file is read linearly, which gives the highest possible throughput.
 
@@ -233,7 +234,7 @@ That means you should safely be able to update `cameras.xml` to a newer version,
 
 ## Format-specific notes
 ### Canon sRaw/mRaw
-Canon reduced resolution Raws (mRaw/sRaw) are returned as RGB with 3 component per pixel without whitebalance compensation, so color balance should match ordinary CR2 images. The subsampled color components are linearly interpolated.
+Canon reduced resolution RAWs (mRaw/sRaw) are returned as RGB with 3 component per pixel without whitebalance compensation, so color balance should match ordinary CR2 images. The subsampled color components are linearly interpolated.
 
 This is complicated further by the fact that Canon has changed the way they store the sraw whitebalance values. This means that on newer cameras, you might have to specify `invert_sraw_wb` as a hint to properly decode the whitebalance on these cameras. To see examples of this, search `cameras.xml` for `invert_sraw_wb`.
 
